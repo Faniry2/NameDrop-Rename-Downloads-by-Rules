@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Renommeur — règles</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <header class="top">
+    <div>
+      <h1>Règles de téléchargement</h1>
+      <p class="sub">Testées dans l'ordre. Une règle qui correspond s'applique, puis on s'arrête, sauf si elle dit de continuer.</p>
+    </div>
+    <div class="top-actions">
+      <label class="switch"><input type="checkbox" id="enabled"><span>Actif</span></label>
+      <button id="export" class="ghost">Exporter</button>
+      <label class="ghost btn">Importer<input type="file" id="import" accept=".json" hidden></label>
+      <span id="status" class="status" aria-live="polite"></span>
+    </div>
+  </header>
+
+  <section class="tester">
+    <h2>Fichier de test</h2>
+    <div class="tester-grid">
+      <label>Nom du fichier<input id="t-file" value="Facture_2026-10.pdf"></label>
+      <label>URL de téléchargement<input id="t-url" value="https://www.exemple.fr/docs/Facture_2026-10.pdf"></label>
+    </div>
+    <p id="t-result" class="t-result"></p>
+  </section>
+
+  <section class="intercept-box">
+    <h2>Fenêtre de nommage</h2>
+    <p class="sub">Quand tu cliques sur un bouton de téléchargement, une fenêtre peut s'ouvrir pour choisir le nom avant l'enregistrement.</p>
+    <select id="i-mode">
+      <option value="rules">Seulement pour les règles qui la demandent</option>
+      <option value="all">Pour tous les téléchargements</option>
+      <option value="sites">Seulement sur certains sites</option>
+    </select>
+    <label class="i-sites">Sites (un par ligne, sous-domaines inclus)
+      <textarea id="i-sites" rows="3" spellcheck="false" placeholder="hubspot.com&#10;exemple.fr"></textarea>
+    </label>
+  </section>
+
+  <main id="rules"></main>
+
+  <div class="add-row">
+    <button id="add" class="primary">Ajouter une règle</button>
+  </div>
+
+  <details class="help">
+    <summary>Variables disponibles</summary>
+    <table>
+      <tr><td><code>{name}</code></td><td>nom d'origine sans extension</td></tr>
+      <tr><td><code>{ext}</code> <code>{filename}</code></td><td>extension / nom d'origine complet</td></tr>
+      <tr><td><code>{domain}</code> <code>{referrer}</code> <code>{url}</code></td><td>domaine du fichier, du site d'origine, URL complète</td></tr>
+      <tr><td><code>{date}</code> <code>{time}</code></td><td>2026-10-11 / 14-32-05</td></tr>
+      <tr><td><code>{yyyy}</code> <code>{mm}</code> <code>{dd}</code> <code>{hh}</code> <code>{min}</code> <code>{ss}</code></td><td>morceaux de date</td></tr>
+      <tr><td><code>{n}</code> <code>{n:3}</code></td><td>compteur de la règle (001, 002…)</td></tr>
+      <tr><td><code>{1}</code> <code>{2}</code>…</td><td>groupes capturés par une condition regex</td></tr>
+      <tr><td><code>{name|slug}</code></td><td>filtres : <code>lower</code>, <code>upper</code>, <code>slug</code>, <code>trim</code> (cumulables)</td></tr>
+      <tr><td><code>/</code></td><td>dans le nouveau nom, crée un sous-dossier : <code>Factures/{yyyy}/{name}</code></td></tr>
+      <tr><th colspan="2">Seulement dans les actions</th></tr>
+      <tr><td><code>{to}</code> <code>{rule}</code></td><td>nouveau nom du fichier / nom de la règle</td></tr>
+      <tr><td><code>{status}</code></td><td>terminé, échec, bloqué ou en cours</td></tr>
+      <tr><td><code>{size}</code> <code>{path}</code></td><td>taille et chemin complet, une fois le fichier terminé</td></tr>
+    </table>
+  </details>
+
+  <template id="rule-tpl">
+    <article class="rule">
+      <div class="rule-head">
+        <div class="order">
+          <button class="up icon" title="Monter" aria-label="Monter">▲</button>
+          <button class="down icon" title="Descendre" aria-label="Descendre">▼</button>
+        </div>
+        <input type="checkbox" class="r-enabled" title="Activer la règle">
+        <input class="r-label" aria-label="Nom de la règle">
+        <button class="dup ghost">Dupliquer</button>
+        <button class="del ghost danger">Supprimer</button>
+      </div>
+      <div class="rule-body">
+        <section class="block">
+          <p class="line">Si
+            <select class="r-mode">
+              <option value="all">toutes</option>
+              <option value="any">au moins une</option>
+            </select>
+            de ces conditions sont vraies :
+          </p>
+          <div class="conds"></div>
+          <button class="add-cond link">+ Ajouter une condition</button>
+          <p class="hint-empty">Aucune condition : la règle s'applique à tous les fichiers.</p>
+        </section>
+
+        <section class="block">
+          <label class="check-title"><input type="checkbox" class="r-rename"> Renommer le fichier</label>
+          <div class="rename-box">
+            <label class="ask"><input type="checkbox" class="r-ask"> Me demander le nom à chaque fois</label>
+            <p class="line">Choisir le nom
+              <select class="r-modesel">
+                <option value="simple">avec un seul modèle</option>
+                <option value="table">selon une table de correspondance</option>
+              </select>
+            </p>
+            <div class="simple-box">
+              <p class="tpl-caption">Nouveau nom</p>
+              <input class="r-template" spellcheck="false" aria-label="Nouveau nom">
+              <div class="chips"></div>
+            </div>
+            <div class="table-box">
+              <p class="tpl-caption">La première ligne qui correspond donne le nom. Si aucune ne correspond, la règle ne s'applique pas.</p>
+              <div class="maps"></div>
+              <div class="map-actions">
+                <button class="add-map link">+ Ajouter une ligne</button>
+                <details class="bulk">
+                  <summary class="link">Coller une liste</summary>
+                  <textarea class="bulk-text" rows="5" spellcheck="false" placeholder="Une ligne par correspondance : texte ; nouveau nom&#10;edf ; Factures/EDF/{date}&#10;orange ; Factures/Orange/{yyyy}-{mm}&#10;(fonctionne aussi avec un copier-coller de 2 colonnes Excel)"></textarea>
+                  <button class="bulk-add ghost">Ajouter ces lignes</button>
+                </details>
+              </div>
+            </div>
+            <div class="opts">
+              <label><input type="checkbox" class="r-ext"> Garder l'extension</label>
+              <label>Si le nom existe déjà
+                <select class="r-conflict">
+                  <option value="uniquify">ajouter (1), (2)…</option>
+                  <option value="overwrite">écraser</option>
+                  <option value="prompt">demander où enregistrer</option>
+                </select>
+              </label>
+              <label>Compteur à partir de <input type="number" class="r-start" min="0"></label>
+              <label>Remise à zéro
+                <select class="r-reset">
+                  <option value="never">jamais</option>
+                  <option value="daily">chaque jour</option>
+                </select>
+              </label>
+              <button class="reset-counter link">Réinitialiser le compteur</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="block">
+          <h3>Actions</h3>
+          <div class="actions"></div>
+          <select class="add-action" aria-label="Ajouter une action"></select>
+        </section>
+
+        <label class="continue"><input type="checkbox" class="r-continue"> Continuer avec les règles suivantes</label>
+        <div class="preview"></div>
+      </div>
+    </article>
+  </template>
+
+  <script src="lib.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { width: 320px; margin: 0; font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1e2433; }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: #243b8c; color: #fff; }
+    header strong { font-size: 15px; }
+    header label { display: flex; gap: 6px; align-items: center; cursor: pointer; }
+    .meta { padding: 10px 14px; color: #5b6478; border-bottom: 1px solid #d9dde6; }
+    ul { list-style: none; margin: 0; padding: 0; max-height: 260px; overflow-y: auto; }
+    li { padding: 8px 14px; border-bottom: 1px solid #eef0f4; font-size: 12.5px; }
+    .from { color: #5b6478; text-decoration: line-through; word-break: break-all; }
+    .to { font-family: ui-monospace, Menlo, Consolas, monospace; word-break: break-all; }
+    .rule { color: #2f9e88; font-size: 11.5px; }
+    .empty { padding: 16px 14px; color: #5b6478; }
+    .intercept { padding: 10px 14px 12px; border-bottom: 1px solid #d9dde6; }
+    .intercept label { display: block; font-weight: 600; margin-bottom: 6px; }
+    .intercept select { width: 100%; padding: 6px 8px; border: 1px solid #d9dde6; border-radius: 6px; font: inherit; background: #fff; }
+    #sites-box { margin-top: 8px; }
+    #sites { max-height: none; }
+    #sites li { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border: 0; font-size: 13px; }
+    #sites li button { width: auto; background: none; color: #5b6478; padding: 0 6px; font-size: 16px; }
+    #sites li button:hover { color: #b3261e; background: none; }
+    #sites:empty::before { content: "Aucun site pour l'instant."; color: #5b6478; font-size: 12.5px; }
+    button.small { width: auto; padding: 5px 10px; font-size: 12.5px; background: #fff; color: #243b8c; border: 1px solid #d9dde6; margin-top: 4px; }
+    button.small:hover { background: #f5f6f9; }
+    button.small:disabled { opacity: .5; cursor: default; }
+    footer { padding: 10px 14px; }
+    button { width: 100%; padding: 8px; border: 0; border-radius: 6px; background: #243b8c; color: #fff; font: inherit; cursor: pointer; }
+    button:hover { background: #1b2e70; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>Renommeur</strong>
+    <label><input type="checkbox" id="enabled"> Actif</label>
+  </header>
+  <section class="intercept">
+    <label for="mode">Fenêtre de nommage au téléchargement</label>
+    <select id="mode">
+      <option value="rules">Seulement pour les règles qui la demandent</option>
+      <option value="all">Pour tous les téléchargements</option>
+      <option value="sites">Seulement sur certains sites</option>
+    </select>
+    <div id="sites-box">
+      <ul id="sites"></ul>
+      <button id="add-site" class="small"></button>
+    </div>
+  </section>
+  <div class="meta" id="meta"></div>
+  <ul id="history"></ul>
+  <footer><button id="open">Gérer les règles</button></footer>
+  <script src="popup.js"></script>
+</body>
+</html>

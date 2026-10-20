@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Nommer le fichier</title>
+  <style>
+    :root { --ink:#1e2433; --muted:#5b6478; --line:#d9dde6; --brand:#243b8c; --mint:#2f9e88; --danger:#b3261e; --paper:#f5f6f9; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 18px 20px; font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: #fff; }
+    h1 { font-size: 16px; margin: 0 0 4px; }
+    .from { color: var(--muted); font-size: 12.5px; word-break: break-all; margin: 0 0 14px; }
+    .field { display: flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+    .field:focus-within { outline: 2px solid var(--brand); outline-offset: 1px; }
+    #name { flex: 1; border: 0; padding: 9px 10px; font: 15px ui-monospace, Menlo, Consolas, monospace; outline: none; min-width: 0; }
+    #ext { padding: 9px 10px; background: var(--paper); color: var(--muted); font: 15px ui-monospace, Menlo, Consolas, monospace; border-left: 1px solid var(--line); }
+    #ext:empty { display: none; }
+    .final { margin: 8px 0 0; font-size: 12.5px; color: var(--muted); word-break: break-all; }
+    .final b { color: var(--mint); font-weight: 600; font-family: ui-monospace, Menlo, Consolas, monospace; }
+    .hint { font-size: 12px; color: var(--muted); margin: 6px 0 16px; }
+    .row { display: flex; gap: 8px; align-items: center; }
+    button { font: inherit; border-radius: 6px; padding: 8px 14px; cursor: pointer; border: 1px solid var(--line); background: #fff; color: var(--ink); }
+    button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+    .primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+    .primary:hover { background: #1b2e70; }
+    .cancel { margin-left: auto; border: 0; color: var(--danger); padding: 8px 4px; }
+    .cancel:hover { text-decoration: underline; }
+    .remember { background: var(--paper); border-radius: 6px; padding: 8px 10px; margin: 0 0 14px; font-size: 13px; }
+    .remember label { display: flex; gap: 6px; align-items: center; }
+    #key { margin-top: 6px; width: 100%; padding: 5px 8px; border: 1px solid var(--line); border-radius: 5px; font: 13px ui-monospace, Menlo, Consolas, monospace; }
+    #key:disabled { opacity: .5; }
+    .rule { font-size: 12px; color: var(--mint); margin: 0 0 2px; }
+  </style>
+</head>
+<body>
+  <p class="rule" id="rule"></p>
+  <h1>Comment nommer ce fichier ?</h1>
+  <p class="from" id="from"></p>
+
+  <div class="field">
+    <input id="name" list="sugg" spellcheck="false" autocomplete="off" aria-label="Nouveau nom">
+    <span id="ext"></span>
+  </div>
+  <datalist id="sugg"></datalist>
+  <p class="final">Enregistré sous : <b id="final"></b></p>
+  <p class="hint">Double-clic ou ↓ dans le champ pour choisir un nom déjà utilisé. Tu peux utiliser les variables ({date}, {n:3}…) et « / » pour un sous-dossier. Entrée pour valider, Échap pour garder le nom proposé.</p>
+
+  <div class="remember">
+    <label><input type="checkbox" id="remember"> Toujours donner ce nom aux fichiers dont le nom contient</label>
+    <input id="key" spellcheck="false" aria-label="Texte à reconnaître">
+  </div>
+
+  <div class="row">
+    <button class="primary" id="ok">Enregistrer</button>
+    <button id="orig">Garder le nom d'origine</button>
+    <button class="cancel" id="cancel">Annuler le téléchargement</button>
+  </div>
+
+  <script src="lib.js"></script>
+  <script src="prompt.js"></script>
+</body>
+</html>
